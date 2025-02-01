@@ -37,8 +37,8 @@ class AIImage2(BasePlugin):
         try:
             ai_client = OpenAI(api_key = api_key)
             if randomize_prompt:
-                text_prompt = AIImage2.fetch_image_prompt(ai_client, text_prompt)
-
+                # text_prompt = AIImage2.fetch_image_prompt(ai_client, text_prompt)
+                text_prompt = AIImage2.get_event(ai_client)
             image = AIImage2.fetch_image(
                 ai_client,
                 text_prompt,
@@ -131,6 +131,43 @@ class AIImage2(BasePlugin):
                 }
             ],
             temperature=1
+        )
+
+        prompt = response.choices[0].message.content.strip()
+        logger.info(f"Generated random image prompt: {prompt}")
+        return prompt
+
+    @staticmethod
+    def get_event(ai_client):
+        logger.info(f"Getting today data prompt...")
+        today = datetime.today().strftime('%A, %B %d, %Y')
+        system_content_2 = (
+            "You are a creative assistant generating extremely random and unique image prompts. "
+            "Do not provide any headers or repeat the request, just provide the "
+            "Topics in order of importance: mathematics, science, music, national holidays, historical events, birthdays, world events"
+            "Return only the prompt in your response."
+        )
+        system_content = ()
+        user_content = (
+            f"Today is {today}, pick a random event from the following topics: mathematics, science, music, national holidays, historical events, birthdays, world events"
+            "Generate an image prompt based on the event you choose."
+            "The image should be wide and horizontal, with a resolution of 1792x1024."
+        )
+
+        # Make the API call
+        response = ai_client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {
+                    "role": "system",
+                    "content": system_content
+                },
+                {
+                    "role": "user",
+                    "content": user_content
+                }
+            ],
+            temperature=0.9
         )
 
         prompt = response.choices[0].message.content.strip()
