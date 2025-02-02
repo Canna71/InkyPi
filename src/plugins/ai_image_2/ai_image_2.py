@@ -63,6 +63,9 @@ class AIImage2(BasePlugin):
             "and visual appeal. Avoid excessive detail or complex gradients, ensuring "
             "the design works well with flat, vibrant colors."
         )
+        prompt += (
+            "the image should contain the date or the event or the person depicted in the image"
+        )
         args = {
             "model": model,
             "prompt": prompt,
@@ -141,13 +144,13 @@ class AIImage2(BasePlugin):
     def get_event(ai_client):
         logger.info(f"Getting today data prompt...")
         today = datetime.today().strftime('%A, %B %d, %Y')
-        system_content_2 = (
+        system_content = (
             "You are a creative assistant generating extremely random and unique image prompts. "
-            "Do not provide any headers or repeat the request, just provide the "
             "Topics in order of importance: mathematics, science, music, national holidays, historical events, birthdays, world events"
-            "Return only the prompt in your response."
+            "Do not provide any headers or repeat the request, just provide the prompt in your response."
+            "You want to convay positive feelings and emotions in the image"
+            "so you avoid dark or negative themes."
         )
-        system_content = ()
         user_content = (
             f"Today is {today}, pick a random event from the following topics: mathematics, science, music, national holidays, historical events, birthdays, world events"
             "Generate an image prompt based on the event you choose."
