@@ -39,6 +39,7 @@ class AIImage2(BasePlugin):
             if randomize_prompt:
                 # text_prompt = AIImage2.fetch_image_prompt(ai_client, text_prompt)
                 text_prompt = AIImage2.get_event(ai_client)
+                AIImage2.send_message(device_config, text_prompt)
             image = AIImage2.fetch_image(
                 ai_client,
                 text_prompt,
@@ -50,6 +51,26 @@ class AIImage2(BasePlugin):
             logger.error(f"Failed to make Open AI request: {str(e)}")
             raise RuntimeError("Open AI request failure, please check logs.")
         return image
+    
+    @staticmethod
+    def send_message(device_config, message):
+        bot_token = device_config.load_env_key("TELEGRAM_BOT_TOKEN")
+        chat_id = device_config.load_env_key("TELEGRAM_CHAT_ID")
+        if not bot_token or not chat_id:
+            logger.error("Telegram bot token or chat ID not configured.")
+            return
+        
+        url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+        data = {
+            "chat_id": chat_id,
+            "text": message
+        }
+        try:
+            requests.post(url, data=data)
+        except Exception as e:
+            logger.error(f"Failed to send message to Telegram: {str(e)}")
+
+
 
     @staticmethod
     def fetch_image(ai_client, prompt, model="dalle-e-3", quality="standard", orientation="horizontal"):
